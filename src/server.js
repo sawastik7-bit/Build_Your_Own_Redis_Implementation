@@ -1,5 +1,10 @@
 import net from 'net';
+import { respParser } from './parser/respParser.js';
+import { store } from './storage/store.js';
 
+import { pingFunc } from './commands/ping.js';
+import { setFunc } from './commands/set.js';
+import { getFunc } from './commands/get.js';
 const server=net.createServer((socket)=>{
     console.log("user connected");
 
@@ -8,7 +13,37 @@ const server=net.createServer((socket)=>{
 socket.on('data',(data)=>{
     console.log(data.toString());
 
-    socket.write("+Ok\r\n")
+    const {command,args}=respParser(data);
+
+    switch(command){
+        case "PING":
+            pingFunc(socket);
+            break;
+        
+        case "SET":
+          setFunc(args,socket);
+          socket.write("+OK\r\n");
+          break;
+
+        case "GET":
+            const val=getFunc(args,socket);
+
+               if(!val){
+                socket.write("$-1\r\n");
+                break;
+            }
+
+             socket.write(
+                `$${val.length}\r\n${val}\r\n`
+            );
+            break;
+        
+         socket.write(
+                "-ERR unknown command\r\n"
+            );
+    }
+
+   
 })
 
 
