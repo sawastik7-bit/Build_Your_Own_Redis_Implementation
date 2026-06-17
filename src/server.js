@@ -6,6 +6,9 @@ import { pingFunc } from './commands/ping.js';
 import { setFunc } from './commands/set.js';
 import { getFunc } from './commands/get.js';
 import { delFunc } from './commands/del.js';
+import { existFunc } from './commands/exists.js';
+import { incrFunc } from './commands/incrFunc.js';
+import { decrFunc } from './commands/decrFunc.js';
 
 
 
@@ -44,7 +47,7 @@ socket.on('data',(data)=>{
 
         
         case "DEL":
-            const result=delFunc(args);
+            let result=delFunc(args);
 
             if(!result){
                 socket.write(`:0\r\n`);
@@ -53,6 +56,28 @@ socket.on('data',(data)=>{
             socket.write(`:1\r\n`);
             break;
             
+        
+        case "EXISTS":
+            let res=existFunc(args);
+
+            if(res){
+                socket.write(`:1\r\n`);
+
+            }else {
+                socket.write(`:0\r\n`);
+            }
+
+              break;
+
+
+        case "INCR":
+                incrFunc(args,socket);
+                break;
+
+
+        case "DECR":
+            decrFunc(args,socket);
+            break;
         
             default:
          socket.write(
