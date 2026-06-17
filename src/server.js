@@ -5,6 +5,10 @@ import { store } from './storage/store.js';
 import { pingFunc } from './commands/ping.js';
 import { setFunc } from './commands/set.js';
 import { getFunc } from './commands/get.js';
+import { delFunc } from './commands/del.js';
+
+
+
 const server=net.createServer((socket)=>{
     console.log("user connected");
 
@@ -37,7 +41,20 @@ socket.on('data',(data)=>{
                 `$${val.length}\r\n${val}\r\n`
             );
             break;
+
         
+        case "DEL":
+            const result=delFunc(args);
+
+            if(!result){
+                socket.write(`:0\r\n`);
+                break;
+            }
+            socket.write(`:1\r\n`);
+            break;
+            
+        
+            default:
          socket.write(
                 "-ERR unknown command\r\n"
             );
